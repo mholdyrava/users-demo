@@ -1,0 +1,187 @@
+openapi: 3.0.3
+info:
+  title: Users Demo API
+  version: 0.0.1
+
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Roles
+  - name: Users
+
+paths:
+  /api/v1/roles:
+    get:
+      tags: [Roles]
+      summary: Get all roles
+      operationId: getAllRoles
+      responses:
+        '200':
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+
+    post:
+      tags: [Roles]
+      summary: Create a new role
+      operationId: addRole
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddRoleRequest'
+      responses:
+        '201':
+          description: Role created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          description: Role with the given code already exists
+
+  /api/v1/users:
+    get:
+      tags: [Users]
+      summary: Get all users (without roles)
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSummary'
+
+    patch:
+      tags: [Users]
+      summary: Create a new user
+      operationId: addUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddUserRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /api/v1/users/{userId}:
+    get:
+      tags: [Users]
+      summary: Get a user with assigned roles
+      operationId: getUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User with assigned roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+  /api/v1/users/{userId}/roles:
+    post:
+      tags: [Users]
+      summary: Assign a role to a user
+      operationId: addRoleToUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddRoleToUserRequest'
+      responses:
+        '200':
+          description: User with updated roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Role already assigned to this user
+        '404':
+          description: User or role not found
+
+components:
+  schemas:
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        code:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        assignedRoles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+
+    AddRoleRequest:
+      type: object
+      required: [name, code]
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+
+    AddUserRequest:
+      type: object
+      required: [fullName]
+      properties:
+        fullName:
+          type: string
+
+    AddRoleToUserRequest:
+      type: object
+      required: [userId, roleId]
+      properties:
+        userId:
+          type: integer
+        roleId:
+          type: integer
