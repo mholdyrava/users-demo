@@ -179,9 +179,7 @@ components:
 
     AddRoleToUserRequest:
       type: object
-      required: [userId, roleId]
+      required: [roleId]
       properties:
-        userId:
-          type: integer
         roleId:
           type: integer

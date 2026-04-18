@@ -59,5 +59,7 @@ All source lives under `src/main/java/com/epam/mh/` in these packages:
 ### Key design decisions
 
 - `GET /users` returns `UserSummary` (id + fullName only) to avoid triggering lazy role loading.
-- `GET /users/{userId}` and `POST /users/{userId}/roles` run inside `@Transactional` to force-initialize the lazy `assignedRoles` collection before the response is serialized.
+- `GET /users/{userId}` uses `@Transactional(readOnly = true)` and `POST /users/{userId}/roles` uses `@Transactional` — both force-initialize the lazy `assignedRoles` collection before serialization.
 - Services throw `ResponseStatusException` directly (no separate exception handler needed).
+- `openapi.yaml` is **manually maintained**, not auto-generated. `springdoc.swagger-ui.url=/openapi.yaml` points the Swagger UI at the static file — update it manually whenever the API changes.
+- Schema is recreated on every startup (`ddl-auto=create-drop`); data does not persist between runs.
